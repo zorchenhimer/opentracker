@@ -22,12 +22,19 @@
 #include "ot_accesslist.h"
 #include "ot_vector.h"
 
+/* inotify stuff */
+#include <sys/types.h>
+#include <linux/inotify.h>
+
 /* GLOBAL VARIABLES */
 #ifdef WANT_ACCESSLIST
        char    *g_accesslist_filename;
 static ot_hash *g_accesslist;
 static size_t   g_accesslist_size;
 static pthread_mutex_t g_accesslist_mutex;
+
+#define EVENT_SIZE (sizeof (struct inotify_event))
+#define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
 
 static int vector_compare_hash(const void *hash1, const void *hash2 ) {
   return memcmp( hash1, hash2, OT_HASH_COMPARE_SIZE );
@@ -38,6 +45,7 @@ static void accesslist_readfile( void ) {
   ot_hash *info_hash, *accesslist_new = NULL;
   char    *map, *map_end, *read_offs;
   size_t   maplen;
+  fprintf( stdout, "Reloading accesslist.\n" );
 
   if( ( map = mmap_read( g_accesslist_filename, &maplen ) ) == NULL ) {
     char *wd = getcwd( NULL, 0 );
@@ -112,12 +120,18 @@ int accesslist_hashisvalid( ot_hash hash ) {
 }
 
 static void * accesslist_worker( void * args ) {
+  /*
   int sig;
   sigset_t   signal_mask;
 
   sigemptyset(&signal_mask);
   sigaddset(&signal_mask, SIGHUP);
+  */
 
+  int fd, wd;
+  fd = inotify_init();
+  wd = inotify_add_watch( fd, g_accesslist_filename, IN_MODIFY);
+  char buffer[1];
   (void)args;
 
   while( 1 ) {
@@ -126,7 +140,8 @@ static void * accesslist_worker( void * args ) {
     accesslist_readfile( );
 
     /* Wait for signals */
-    while( sigwait (&signal_mask, &sig) != 0 && sig != SIGHUP );
+    /*while( sigwait (&signal_mask, &sig) != 0 && sig != SIGHUP );*/
+    read( fd, buffer, EVENT_BUF_LEN );
   }
   return NULL;
 }
