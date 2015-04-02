@@ -33,9 +33,6 @@ static ot_hash *g_accesslist;
 static size_t   g_accesslist_size;
 static pthread_mutex_t g_accesslist_mutex;
 
-#define EVENT_SIZE (sizeof (struct inotify_event))
-#define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
-
 static int vector_compare_hash(const void *hash1, const void *hash2 ) {
   return memcmp( hash1, hash2, OT_HASH_COMPARE_SIZE );
 }
@@ -120,14 +117,6 @@ int accesslist_hashisvalid( ot_hash hash ) {
 }
 
 static void * accesslist_worker( void * args ) {
-  /*
-  int sig;
-  sigset_t   signal_mask;
-
-  sigemptyset(&signal_mask);
-  sigaddset(&signal_mask, SIGHUP);
-  */
-
   int fd, wd;
   fd = inotify_init();
   wd = inotify_add_watch( fd, g_accesslist_filename, IN_MODIFY);
@@ -139,8 +128,7 @@ static void * accesslist_worker( void * args ) {
     /* Initial attempt to read accesslist */
     accesslist_readfile( );
 
-    /* Wait for signals */
-    /*while( sigwait (&signal_mask, &sig) != 0 && sig != SIGHUP );*/
+    /* Wait for file modifications */
     read( fd, buffer, EVENT_BUF_LEN );
   }
   return NULL;
