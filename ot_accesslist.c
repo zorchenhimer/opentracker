@@ -117,9 +117,9 @@ int accesslist_hashisvalid( ot_hash hash ) {
 }
 
 static void * accesslist_worker( void * args ) {
-  int fd, wd;
+  int fd;
   fd = inotify_init();
-  wd = inotify_add_watch( fd, g_accesslist_filename, IN_MODIFY);
+  inotify_add_watch( fd, g_accesslist_filename, IN_MODIFY);
   char buffer[1];
   (void)args;
 
