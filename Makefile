@@ -81,7 +81,7 @@ proxy.debug: $(OBJECTS_proxy_debug) $(HEADERS)
 	$(CC) -c -o $@ $(CFLAGS_production) $<
 
 clean:
-	rm -rf opentracker opentracker.debug *.o *~
+	rm -rf $(BINARY) $(BINARY).debug *.o *~
 
 install:
-	install -m 755 opentracker $(BINDIR)
+	install -m 755 $(BINARY) $(BINDIR)
