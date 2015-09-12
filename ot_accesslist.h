@@ -18,6 +18,12 @@ int  accesslist_hashisvalid( ot_hash hash );
 
 extern char *g_accesslist_filename;
 
+/* inotify stuff */
+extern int inotify_init(void);
+extern int inotify_add_watch(int fd, const char *pathname, uint32_t mask);
+#define EVENT_SIZE (sizeof (struct inotify_event))
+#define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
+
 #else
 #define accesslist_init( accesslist_filename )
 #define accesslist_deinit( )
