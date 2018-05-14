@@ -184,7 +184,7 @@ static const ot_keywords keywords_mode[] =
     { NULL, -3 } };
 static const ot_keywords keywords_format[] =
   { { "bin", TASK_FULLSCRAPE_TPB_BINARY }, { "ben", TASK_FULLSCRAPE }, { "url", TASK_FULLSCRAPE_TPB_URLENCODED },
-    { "txt", TASK_FULLSCRAPE_TPB_ASCII }, { NULL, -3 } };
+    { "txt", TASK_FULLSCRAPE_TPB_ASCII }, { "txtp", TASK_FULLSCRAPE_TPB_ASCII_PLUS }, { NULL, -3 } };
 
   int mode = TASK_STATS_PEERS, scanon = 1, format = 0;
 
@@ -497,8 +497,8 @@ static ssize_t http_handle_announce( const int64 sock, struct ot_workstruct *ws,
           return ws->reply_size = sprintf( ws->reply, "Successfully added.\n" );
         //}
       }
-#endif
         break;
+#endif
       case 9: /* matched "peer_id" */
         /* ignore this, when we have less than 20 bytes */
         if( scan_urlencoded_query( &read_ptr, write_ptr = read_ptr, SCAN_SEARCHPATH_VALUE ) != 20 ) HTTPERROR_400_PARAM;
@@ -511,8 +511,9 @@ static ssize_t http_handle_announce( const int64 sock, struct ot_workstruct *ws,
   numwants[numwant]++;
 #endif
 
-  /* XXX DEBUG */
+  /* XXX DEBUG
   stats_issue_event( EVENT_ACCEPT, FLAG_TCP, (uintptr_t)ws->reply );
+  */
 
   /* Scanned whole query string */
   if( !ws->hash )
